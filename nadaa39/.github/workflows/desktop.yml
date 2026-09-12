@@ -1,0 +1,71 @@
+name: Build desktop
+on: [workflow_dispatch]
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: cd apps/web && npm install && npm run build
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: .
+
+name: Build iOS
+on: [workflow_dispatch]
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: cd apps/web && npm install && npm run build
+      - run: npm install -g @capacitor/cli @capacitor/assets && npx cap add ios || true
+      - run: npx @capacitor/assets generate
+      - run: ./scripts_patch_mobile.sh
+      - run: npx cap copy ios
+      - run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphonesimulator -configuration Debug -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+
+name: Deploy web app to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm --prefix apps/web install
+      - run: npm --prefix apps/web run build
+        env:
+          VITE_API_BASE: ${{ vars.NADAA_API_BASE }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+      - uses: actions/deploy-pages@v4
+
+  # GitHub Pages is static. Your FastAPI gateway must be deployed separately over HTTPS.
