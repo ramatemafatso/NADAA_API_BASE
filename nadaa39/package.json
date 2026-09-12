@@ -1,0 +1,19 @@
+{
+  "name": "nadaa39",
+  "private": true,
+  "scripts": {
+    "cap:add:android": "npx cap add android",
+    "cap:add:ios": "npx cap add ios",
+    "cap:icons": "npx @capacitor/assets generate",
+    "app:build": "npm --prefix apps/web install && npm --prefix apps/web run build",
+    "app:dev": "npm --prefix apps/web run dev",
+    "build": "npm --prefix apps/web install && npm --prefix apps/web run build"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "latest",
+    "@capacitor/assets": "latest"
+  },
+  "dependencies": {
+    "@capacitor/core": "latest"
+  }
+}

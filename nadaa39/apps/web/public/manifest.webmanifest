@@ -1,0 +1,12 @@
+{
+  "name": "Nadaa",
+  "short_name": "Nadaa",
+  "description": "Nadaa — Morbius Processing Intelligence",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#05050d",
+  "theme_color": "#05050d",
+  "icons": [
+    {"src":"icons/nadaa-morbius.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
