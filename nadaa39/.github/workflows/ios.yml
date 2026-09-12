@@ -1,0 +1,15 @@
+name: Build iOS
+on: [workflow_dispatch]
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: cd apps/web && npm install && npm run build
+      - run: npm install -g @capacitor/cli @capacitor/assets && npx cap add ios || true
+      - run: npx @capacitor/assets generate
+      - run: ./scripts_patch_mobile.sh
+      - run: npx cap copy ios
+      - run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphonesimulator -configuration Debug -derivedDataPath build CODE_SIGNING_ALLOWED=NO
